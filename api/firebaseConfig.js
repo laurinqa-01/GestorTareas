@@ -2,20 +2,20 @@ import { initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// Reemplaza estos datos con los que aparecen en tu consola de Firebase
+// Tus credenciales reales de MiApp
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
+  apiKey: "AIzaSyDYPUlqXdUtbYW868pVTGvN5UfybbJpk-w",
   authDomain: "miapp-e1ac0.firebaseapp.com",
   projectId: "miapp-e1ac0",
-  storageBucket: "miapp-e1ac0.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID"
+  storageBucket: "miapp-e1ac0.firebasestorage.app",
+  messagingSenderId: "117611646507",
+  appId: "1:117611646507:web:b0c799830361a3ba7ea46e"
 };
 
-// Inicialización de la App
+// Inicializamos la App
 const app = initializeApp(firebaseConfig);
 
-// Inicialización de Auth con persistencia para React Native
+// Inicializamos Auth con la persistencia que pide Expo/React Native
 export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage)
 });
