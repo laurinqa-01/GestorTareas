@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { ActivityIndicator, View, StatusBar } from 'react-native';
-import { AuthProvider, AuthContext } from './context/authContext'; // Cambiado: ./ porque está en la misma carpeta
-import LoginScreen from './screens/LoginScreen';                // Cambiado: ./ porque está en la misma carpeta
-import HomeScreen from './screens/HomeScreen';                  // Cambiado: ./ porque está en la misma carpeta
+import { AuthProvider, AuthContext } from './context/authContext';
+import LoginScreen from './screens/LoginScreen';
+import HomeScreen from './screens/HomeScreen';
 
 const RootNavigation = () => {
   const { userToken, isLoading } = useContext(AuthContext);
@@ -16,12 +16,12 @@ const RootNavigation = () => {
         backgroundColor: '#FFF5F7' 
       }}>
         <StatusBar barStyle="dark-content" />
-        <ActivityIndicator size="large" color="#FFB6C1" />
+        <ActivityIndicator size="large" color="#D47384" />
       </View>
     );
   }
 
-  // Ahora sí te mandará a tu Home rosa si hay token
+  // Selección automática de pantalla basada en el estado del token
   return userToken ? <HomeScreen /> : <LoginScreen />; 
 };
 
