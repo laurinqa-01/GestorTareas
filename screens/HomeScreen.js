@@ -2,7 +2,8 @@ import React, { useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { AuthContext } from "../context/authContext";
 
-const HomeScreen = ({ navigation }) => {
+// Recibimos las funciones de navegación manual desde App.js
+const HomeScreen = ({ goToTasks, goToDashboard }) => {
     const { logout } = useContext(AuthContext);
 
     return (
@@ -14,9 +15,10 @@ const HomeScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.menuGrid}>
+                    {/* Botón de Tareas - CRUD */}
                     <TouchableOpacity 
                         style={styles.card} 
-                        onPress={() => navigation.navigate('Tasks')}
+                        onPress={goToTasks}
                     >
                         <View style={[styles.iconCircle, { backgroundColor: '#FFB6C1' }]}>
                             <Text style={styles.cardIcon}>🌸</Text>
@@ -24,56 +26,43 @@ const HomeScreen = ({ navigation }) => {
                         <Text style={styles.cardText}>Mis Tareas</Text>
                     </TouchableOpacity>
 
+                    {/* Botón de Dashboard - REQUISITO PIZARRA */}
                     <TouchableOpacity 
                         style={styles.card} 
-                        onPress={logout}
+                        onPress={goToDashboard}
                     >
-                        <View style={[styles.iconCircle, { backgroundColor: '#FADADD' }]}>
-                            <Text style={styles.cardIcon}>✨</Text>
+                        <View style={[styles.iconCircle, { backgroundColor: '#D47384' }]}>
+                            <Text style={styles.cardIcon}>📊</Text>
                         </View>
-                        <Text style={styles.cardText}>Salir</Text>
+                        <Text style={styles.cardText}>Dashboard</Text>
                     </TouchableOpacity>
                 </View>
+
+                {/* Botón de Salir - REQUISITO PIZARRA */}
+                <TouchableOpacity 
+                    style={styles.logoutButton} 
+                    onPress={logout}
+                >
+                    <Text style={styles.logoutText}>Cerrar Sesión ✨</Text>
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { 
-        flex: 1, 
-        backgroundColor: '#FFF5F7' // Un fondo rosado casi blanco, muy elegante
-    },
-    content: {
-        padding: 25,
-    },
-    header: { 
-        marginTop: 40, 
-        marginBottom: 40 
-    },
-    welcome: { 
-        fontSize: 32, 
-        fontWeight: '700', 
-        color: '#D47384', // Rosa oscuro para el texto principal
-        letterSpacing: -0.5 
-    },
-    sub: { 
-        fontSize: 18, 
-        color: '#A88B92', 
-        marginTop: 5,
-        fontWeight: '400'
-    },
-    menuGrid: { 
-        flexDirection: 'row', 
-        justifyContent: 'space-between' 
-    },
+    container: { flex: 1, backgroundColor: '#FFF5F7' },
+    content: { padding: 25 },
+    header: { marginTop: 40, marginBottom: 40 },
+    welcome: { fontSize: 32, fontWeight: '700', color: '#D47384', letterSpacing: -0.5 },
+    sub: { fontSize: 18, color: '#A88B92', marginTop: 5, fontWeight: '400' },
+    menuGrid: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
     card: { 
         backgroundColor: '#ffffff', 
         width: '47%', 
         paddingVertical: 30,
-        borderRadius: 25, // Bordes mucho más redondeados
+        borderRadius: 25, 
         alignItems: 'center',
-        // Sombras más sutiles y elegantes
         elevation: 5,
         shadowColor: '#D47384',
         shadowOffset: { width: 0, height: 10 },
@@ -88,15 +77,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 15
     },
-    cardIcon: { 
-        fontSize: 30 
+    cardIcon: { fontSize: 30 },
+    cardText: { fontSize: 15, fontWeight: '600', color: '#705D61', textAlign: 'center' },
+    logoutButton: {
+        marginTop: 20,
+        backgroundColor: '#FFE4E1',
+        padding: 15,
+        borderRadius: 20,
+        alignItems: 'center'
     },
-    cardText: { 
-        fontSize: 15, 
-        fontWeight: '600', 
-        color: '#705D61', 
-        textAlign: 'center' 
-    }
+    logoutText: { color: '#D47384', fontWeight: '700', fontSize: 16 }
 });
 
 export default HomeScreen;

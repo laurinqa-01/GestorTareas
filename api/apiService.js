@@ -1,62 +1,69 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-// BASE_URL verificado con tu IP actual
-const BASE_URL = "http://10.3.146.24:8000/api"; 
-
-export const loginService = async (email, password) => {
-    try {
-        const response = await fetch(`${BASE_URL}/auth/login/`, {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            // Esto ayudará a mostrar mensajes lindos en el Login si algo falla
-            throw new Error(data.error || 'Credenciales incorrectas, intenta de nuevo ✨');
-        }
-
-        return data;
-    } catch (error) {
-        throw error;
-    }
-};
+import { db } from "./firebaseConfig";
+import { 
+    collection, addDoc, getDocs, query, where, 
+    doc, updateDoc, deleteDoc, orderBy 
+} from "firebase/firestore";
 
 export const taskApiService = {
-    // Listar tareas (Get)
-    getAll: (token) => fetch(`${BASE_URL}/tareas/`, {
-        headers: {
-            'Authorization': `Bearer ${token}` // Espacio verificado
+    // 1. OBTENER TAREAS (Filtradas por usuario y ordenadas por fecha)
+    getAll: async (userId) => {
+        try {
+            const q = query(
+                collection(db, "tareas"), 
+                where("userId", "==", userId),
+                orderBy("createdAt", "desc") // Las más nuevas aparecen arriba
+            );
+            const querySnapshot = await getDocs(q);
+            const tasks = [];
+            querySnapshot.forEach((doc) => {
+                // EXTRACCIÓN CRÍTICA: Aquí asignamos el ID real de Firebase
+                tasks.push({ id: doc.id, ...doc.data() }); 
+            });
+            return tasks;
+        } catch (error) {
+            console.error("Error en getAll:", error);
+            throw error;
         }
-    }).then(res => res.json()),
+    },
 
-    // Crear nueva tarea (Post)
-    create: (token, data) => fetch(`${BASE_URL}/tareas/`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    }).then(res => res.json()),
-
-    // Editar tarea (Put)
-    update: (token, id, data) => fetch(`${BASE_URL}/tareas/${id}/`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    }).then(res => res.json()),
-
-    // Eliminar tarea (Delete)
-    delete: (token, id) => fetch(`${BASE_URL}/tareas/${id}/`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${token}`
+    // 2. CREAR TAREA
+    create: async (userId, taskData) => {
+        try {
+            await addDoc(collection(db, "tareas"), {
+                titulo: taskData.titulo,
+                descripcion: taskData.descripcion,
+                userId: userId, 
+                createdAt: new Date(),
+            });
+        } catch (error) {
+            console.error("Error en create:", error);
+            throw error;
         }
-    })
+    },
+
+    // 3. ACTUALIZAR TAREA (Usa el ID del documento)
+    update: async (taskId, updatedData) => {
+        try {
+            const taskRef = doc(db, "tareas", taskId);
+            await updateDoc(taskRef, {
+                titulo: updatedData.titulo,
+                descripcion: updatedData.descripcion,
+                updatedAt: new Date()
+            });
+        } catch (error) {
+            console.error("Error en update:", error);
+            throw error;
+        }
+    },
+
+    // 4. ELIMINAR TAREA
+    delete: async (taskId) => {
+        try {
+            const taskRef = doc(db, "tareas", taskId);
+            await deleteDoc(taskRef);
+        } catch (error) {
+            console.error("Error en delete:", error);
+            throw error;
+        }
+    }
 };

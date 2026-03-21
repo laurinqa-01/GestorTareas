@@ -1,20 +1,29 @@
 import React, { useContext, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native'; // Agregamos estos
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, AuthContext } from './context/authContext';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import TaskScreen from './screens/TaskScreen';
-import DashboardScreen from './screens/DashboardScreen'; // Nueva pantalla
+import DashboardScreen from './screens/DashboardScreen';
 
 const RootNavigation = () => {
   const { userToken, isLoading } = useContext(AuthContext);
   const [currentScreen, setCurrentScreen] = useState('Home');
 
-  if (isLoading) return null; // O un ActivityIndicator
+  // Si está cargando, mostramos un círculo de carga para que no parezca trabado
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF5F7' }}>
+        <ActivityIndicator size="large" color="#D47384" />
+      </View>
+    );
+  }
 
+  // Si no hay token, mandamos al Login obligatoriamente
   if (!userToken) return <LoginScreen />;
 
-  // Control de navegación manual para cumplir con el requisito de "Individual"
+  // Navegación manual
   switch (currentScreen) {
     case 'Tasks':
       return <TaskScreen onBack={() => setCurrentScreen('Home')} />;
