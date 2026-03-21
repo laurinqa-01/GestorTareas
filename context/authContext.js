@@ -1,5 +1,7 @@
-import React, { createContext, useState, useEffect } from "react"; // 1. Corregido: useState (no userState)
+import React, { createContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { auth } from "../api/firebaseConfig"; // Importamos tu nueva config
+import { onAuthStateChanged } from "firebase/auth";
 
 export const AuthContext = createContext();
 
@@ -7,33 +9,35 @@ export const AuthProvider = ({ children }) => {
     const [userToken, setUserToken] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const login = async (token) => {
-        setUserToken(token);
-        await AsyncStorage.setItem('userToken', token); //
-    };
-
-    const logout = async () => { // 2. Agregado: Función para cerrar sesión
-        setUserToken(null);
-        await AsyncStorage.removeItem('userToken');
-    };
-
-    const isLoggedIn = async () => {
-        try {
-            const token = await AsyncStorage.getItem('userToken'); //
-            setUserToken(token);
-        } catch (e) {
-            console.log('Error en persistencia ');
-        } finally {
-            setIsLoading(false); // Se asegura de dejar de cargar pase lo que pase
-        }
-    };
-
+    // Escuchador de Firebase ✨
     useEffect(() => {
-        isLoggedIn(); // 3. Corregido: Llamar a la función isLoggedIn() (no a la variable isLoading)
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const token = await user.getIdToken();
+                setUserToken(token);
+                await AsyncStorage.setItem('userToken', token);
+            } else {
+                setUserToken(null);
+                await AsyncStorage.removeItem('userToken');
+            }
+            setIsLoading(false);
+        });
+
+        return unsubscribe; // Limpia el escuchador
     }, []);
 
+    const login = async (token) => {
+        setUserToken(token);
+        await AsyncStorage.setItem('userToken', token);
+    };
+
+    const logout = async () => {
+        setUserToken(null);
+        await AsyncStorage.removeItem('userToken');
+        await auth.signOut(); // Cerramos sesión en Firebase también
+    };
+
     return (
-        // 4. Corregido: Pasar las funciones y estados al Provider
         <AuthContext.Provider value={{ login, logout, userToken, isLoading }}>
             {children}
         </AuthContext.Provider>

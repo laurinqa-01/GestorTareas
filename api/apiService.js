@@ -1,21 +1,21 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = "http://10.3.146.24:8000/api"; // Sin espacios y con http://
+// BASE_URL verificado con tu IP actual
+const BASE_URL = "http://10.3.146.24:8000/api"; 
 
 export const loginService = async (email, password) => {
     try {
-        // Corregido: Uso de backticks (`) para template literals y variable 'response'
         const response = await fetch(`${BASE_URL}/auth/login/`, {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
         });
 
-        // Corregido: response (minúscula) es la instancia, Response (mayúscula) es la clase
         const data = await response.json();
 
         if (!response.ok) {
-            throw new Error(data.error || 'Error al iniciar sesión');
+            // Esto ayudará a mostrar mensajes lindos en el Login si algo falla
+            throw new Error(data.error || 'Credenciales incorrectas, intenta de nuevo ✨');
         }
 
         return data;
@@ -25,14 +25,14 @@ export const loginService = async (email, password) => {
 };
 
 export const taskApiService = {
-    // Listar (get)
+    // Listar tareas (Get)
     getAll: (token) => fetch(`${BASE_URL}/tareas/`, {
         headers: {
-            'Authorization': `Bearer ${token}` // Espacio agregado entre Bearer y el token
+            'Authorization': `Bearer ${token}` // Espacio verificado
         }
     }).then(res => res.json()),
 
-    // Crear
+    // Crear nueva tarea (Post)
     create: (token, data) => fetch(`${BASE_URL}/tareas/`, {
         method: 'POST',
         headers: {
@@ -42,7 +42,7 @@ export const taskApiService = {
         body: JSON.stringify(data)
     }).then(res => res.json()),
 
-    // Editar
+    // Editar tarea (Put)
     update: (token, id, data) => fetch(`${BASE_URL}/tareas/${id}/`, {
         method: 'PUT',
         headers: {
@@ -52,11 +52,11 @@ export const taskApiService = {
         body: JSON.stringify(data)
     }).then(res => res.json()),
 
-    // Eliminar
+    // Eliminar tarea (Delete)
     delete: (token, id) => fetch(`${BASE_URL}/tareas/${id}/`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${token}`
         }
     })
-}
+};
